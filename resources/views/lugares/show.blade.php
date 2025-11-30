@@ -187,9 +187,10 @@
 
             <!-- Formulario para agregar comentario (solo usuarios autenticados) -->
             @auth
-                <div class="mb-4 pb-4 border-bottom">
-                    <h5 class="mb-3"><i class="fa fa-edit text-primary me-2"></i>Deja tu reseña</h5>
-                    <form action="{{ route('comentarios.store', $lugare->id) }}" method="POST" id="form-comentario">
+                @if(!auth()->user()->hasRole('admin'))
+                    <div class="mb-4 pb-4 border-bottom">
+                        <h5 class="mb-3"><i class="fa fa-edit text-primary me-2"></i>Deja tu reseña</h5>
+                        <form action="{{ route('comentarios.store', $lugare->id) }}" method="POST" id="form-comentario">
                         @csrf
                         <!-- Calificación con estrellas -->
                         <div class="mb-3">
@@ -224,6 +225,7 @@
                         </button>
                     </form>
                 </div>
+                @endif
             @else
                 <div class="alert alert-light border mb-4 text-center">
                     <i class="fa fa-sign-in-alt me-2"></i>

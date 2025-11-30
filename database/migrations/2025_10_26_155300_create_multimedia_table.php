@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('multimedia', function (Blueprint $table) {
@@ -18,16 +15,14 @@ return new class extends Migration
             $table->string('formato')->nullable();
             $table->integer('tamano')->nullable();
             $table->text('descripcion')->nullable();
+
             $table->foreignId('lugar_id')->nullable()->constrained('lugar_turisticos')->onDelete('cascade');
             $table->foreignId('evento_id')->nullable()->constrained('eventos')->onDelete('cascade');
+
             $table->timestamps();
         });
     }
 
-
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('multimedia');

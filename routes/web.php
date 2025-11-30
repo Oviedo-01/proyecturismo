@@ -30,11 +30,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.delete'); 
 });
 
@@ -44,10 +39,17 @@ Route::middleware('auth')->group(function () {
 Route::get('/explorar-lugares', [LugarTuristicoController::class, 'explorar'])->name('lugares.explorar');
 Route::get('/lugar/{id}', [LugarTuristicoController::class, 'mostrar'])->name('lugar.mostrar');
 
+// ✅ Rutas que necesitan los tests (PUBLICAS)
+Route::get('/lugares', [LugarTuristicoController::class, 'index'])
+    ->name('lugares.index.public');
+
+Route::get('/lugares/{id}', [LugarTuristicoController::class, 'show'])
+    ->name('lugares.show.public');
+
 // ==========================================
 // 👑 RUTAS PARA ADMINISTRADORES
 // ==========================================
-Route::middleware(['auth', 'role:admin'])->group(function () {
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     // Panel de administración
     Route::get('/panel', function () {
         return 'Bienvenido al panel del administrador';
@@ -66,6 +68,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     // Moderación de comentarios
     Route::post('/comentario/{id}/moderar', [ComentarioController::class, 'moderar'])->name('comentarios.moderar');
+
+    // Rutas de gestión de eventos (solo admin)
+    Route::get('/eventos/crear', [App\Http\Controllers\EventoController::class, 'create'])->name('eventos.create');
+    Route::post('/eventos', [App\Http\Controllers\EventoController::class, 'store'])->name('eventos.store');
+    Route::get('/eventos/{id}/editar', [App\Http\Controllers\EventoController::class, 'edit'])->name('eventos.edit');
+    Route::put('/eventos/{id}', [App\Http\Controllers\EventoController::class, 'update'])->name('eventos.update');
+    Route::delete('/eventos/{id}', [App\Http\Controllers\EventoController::class, 'destroy'])->name('eventos.destroy');
 });
 
 // ==========================================
@@ -78,29 +87,16 @@ Route::middleware(['auth'])->group(function () {
     // 💬 COMENTARIOS Y RESEÑAS
     Route::post('/lugar/{id}/comentario', [ComentarioController::class, 'store'])->name('comentarios.store');
     Route::delete('/comentario/{id}', [ComentarioController::class, 'destroy'])->name('comentarios.destroy');
-});
 
-// ==========================================
-// 🎉 EVENTOS (públicos y autenticados)
-// ==========================================
-
-// Rutas públicas de eventos
-Route::get('/eventos', [App\Http\Controllers\EventoController::class, 'index'])->name('eventos.index');
-Route::get('/eventos/{id}', [App\Http\Controllers\EventoController::class, 'show'])->name('eventos.show');
-
-// Rutas de reservas (usuarios autenticados)
-Route::middleware(['auth'])->group(function () {
+    // Rutas de reservas (usuarios autenticados)
     Route::post('/reservas', [ReservaController::class, 'store'])->name('reservas.store');
     Route::delete('/reservas/{id}', [ReservaController::class, 'destroy'])->name('reservas.destroy');
 });
 
-// Rutas de gestión de eventos (solo admin)
-Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/admin/eventos/crear', [App\Http\Controllers\EventoController::class, 'create'])->name('eventos.create');
-    Route::post('/admin/eventos', [App\Http\Controllers\EventoController::class, 'store'])->name('eventos.store');
-    Route::get('/admin/eventos/{id}/editar', [App\Http\Controllers\EventoController::class, 'edit'])->name('eventos.edit');
-    Route::put('/admin/eventos/{id}', [App\Http\Controllers\EventoController::class, 'update'])->name('eventos.update');
-    Route::delete('/admin/eventos/{id}', [App\Http\Controllers\EventoController::class, 'destroy'])->name('eventos.destroy');
-});
+// ==========================================
+// 🎉 EVENTOS PÚBLICOS
+// ==========================================
+Route::get('/eventos', [App\Http\Controllers\EventoController::class, 'index'])->name('eventos.index');
+Route::get('/eventos/{id}', [App\Http\Controllers\EventoController::class, 'show'])->name('eventos.show');
 
 require __DIR__.'/auth.php';

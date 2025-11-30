@@ -9,7 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('lugar_turisticos', function (Blueprint $table) {
-            $table->id('id_lugar');
+            $table->id(); // ← ID estándar de Laravel
+
             $table->string('nombre');
             $table->text('descripcion')->nullable();
             $table->string('direccion')->nullable();
@@ -18,10 +19,19 @@ return new class extends Migration
             $table->string('horarios')->nullable();
             $table->string('precio')->nullable();
             $table->string('contacto')->nullable();
-            $table->foreignId('id_categoria')->constrained('categorias')->onDelete('cascade');
-            $table->foreignId('id_creador')->constrained('users')->onDelete('cascade');
+
+            // Campo que faltaba en tu BD de pruebas
+            $table->decimal('promedio_calificacion', 3, 2)->default(0);
+
+            // Foreign keys con convenciones correctas
+            $table->foreignId('categoria_id')->constrained('categorias')->onDelete('cascade');
+            $table->foreignId('creador_id')->constrained('users')->onDelete('cascade');
+
             $table->timestamp('fecha_creacion')->useCurrent();
             $table->boolean('visible')->default(true);
+
+            // ← Esto te faltaba
+            $table->timestamps();
         });
     }
 
@@ -30,3 +40,4 @@ return new class extends Migration
         Schema::dropIfExists('lugar_turisticos');
     }
 };
+

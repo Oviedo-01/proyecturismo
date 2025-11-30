@@ -20,6 +20,19 @@ class Comentario extends Model
     ];
 
     // ==========================================
+    // VALORES POR DEFECTO
+    // ==========================================
+
+    protected static function booted()
+    {
+        static::creating(function ($comentario) {
+            if (empty($comentario->estado)) {
+                $comentario->estado = 'pendiente';
+            }
+        });
+    }
+
+    // ==========================================
     // RELACIONES
     // ==========================================
     

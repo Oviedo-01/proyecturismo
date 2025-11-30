@@ -55,9 +55,12 @@ class LugarTuristico extends Model
     }
 
     // ==========================================
-    // RELACIONES PARA COMENTARIOS
+    // RELACIONES PARA COMENTARIOS (CORREGIDO)
     // ==========================================
     
+    /**
+     * Comentarios aprobados del lugar
+     */
     public function comentarios()
     {
         return $this->hasMany(Comentario::class, 'lugar_id')
@@ -65,31 +68,57 @@ class LugarTuristico extends Model
             ->latest();
     }
 
+    /**
+     * Todas las reseñas (sin filtrar por estado)
+     */
     public function todasLasResenas()
     {
-        return $this->hasMany(Comentario::class, 'lugar_id')->latest();
+        return $this->hasMany(Comentario::class, 'lugar_id')
+            ->latest();
+    }
+
+    /**
+     * Reseñas pendientes de moderación
+     */
+    public function resenasPendientes()
+    {
+        return $this->hasMany(Comentario::class, 'lugar_id')
+            ->where('estado', 'pendiente')
+            ->latest();
     }
 
     // ==========================================
     // MÉTODOS PARA CALIFICACIONES
     // ==========================================
     
+    /**
+     * Calcular promedio de calificación (solo aprobadas)
+     */
     public function calificacionPromedio()
     {
         $promedio = $this->comentarios()->avg('calificacion');
         return $promedio ? round($promedio, 1) : 0;
     }
 
+    /**
+     * Promedio redondeado (para estrellas)
+     */
     public function calificacionPromedioRedondeado()
     {
         return round($this->calificacionPromedio());
     }
 
+    /**
+     * Total de comentarios aprobados
+     */
     public function totalComentarios()
     {
         return $this->comentarios()->count();
     }
 
+    /**
+     * Distribución de calificaciones (cuántas de cada estrella)
+     */
     public function distribucionCalificaciones()
     {
         $distribucion = [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0];
@@ -106,6 +135,9 @@ class LugarTuristico extends Model
         return $distribucion;
     }
 
+    /**
+     * Verificar si un usuario ya comentó este lugar
+     */
     public function usuarioYaComento($userId)
     {
         return $this->todasLasResenas()
@@ -113,12 +145,18 @@ class LugarTuristico extends Model
             ->exists();
     }
 
+    /**
+     * Actualizar el promedio de calificación en la BD
+     */
     public function actualizarPromedioCalificacion()
     {
         $promedio = $this->calificacionPromedio();
         $this->update(['promedio_calificacion' => $promedio]);
     }
 
+    /**
+     * Obtener la imagen principal del lugar
+     */
     public function imagenPrincipal()
     {
         $imagen = $this->imagenes()->first();
